@@ -14,21 +14,21 @@ class HTable{
 	public:
 		// Constructor
 		HTable();
+		HTable(value_type& value);
 		
 		// Destructor
 		~HTable();
 		
 		// Other methods
 		int hashfun(const value_type& value);
-		void add (value_type value);
-		void remove(value_type value);
-		void calculateParts();
-		void calculateInventory();
+		void add (value_type& value);
+		void remove(value_type& value);
+		int calculateParts();
+		int calculateInventory();
 		
 		string print();
 	private:
 		value_type dataArray[5000];
-		int stored[5000];
 		int TABLE_SIZE;
 	protected:
 };

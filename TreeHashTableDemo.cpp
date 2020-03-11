@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "BSTree.h"
-//#include "HTable.h"
+#include "HTable.h"
 #include "MechPart.h"
 
 using namespace std;
@@ -13,7 +13,7 @@ using namespace std;
 int main(){
 	clock_t t;
 	BSTree<MechPart> treeValues;			// create a new instance of BSTree and call it treeValues
-	//HTable<MechPart> tableValues;			// create a new instance of HTable and call it tableValues
+	HTable<MechPart> tableValues;			// create a new instance of HTable and call it tableValues
     MechPart part;							// create a new instance of MechPart and call is part
 	
 	// Reads data from input file and populates tree
@@ -32,7 +32,7 @@ int main(){
 			tempSS2 >> tempInt;
 			part.set_quantity(tempInt);
 			treeValues.add(part); // adds element to the tree
-			//tableValues.add(part); // adds element to the table
+			tableValues.add(part); // adds element to the table
 		}
 	}
 	
@@ -48,9 +48,9 @@ int main(){
 	t = clock(); // gets current time
 	cout << "Initial tree: " << treeValues << endl; // prints the contents of the tree.
 	
-	cout << endl << "Adding and removing..." << endl;
+	cout << endl << "Adding and TRYING TO remove 100 000 times..." << endl;
 	
-	for (int j=0; j<100000; j++){
+	for (int j=0; j<100000; j++){		// 100 000 times
 		for (int i=0; i<11; i++){		// removes the 11 elements in the list. The first one is not present.
 			part.set_code(vectorCodes[i]); part.set_quantity(vectorQuantities[i]);
 			//treeValues.remove(part);
@@ -58,7 +58,7 @@ int main(){
 
 		for (int i=1; i<11; i++){ // adds all elements removed back into the data structure.
 			part.set_code(vectorCodes[i]); part.set_quantity(vectorQuantities[i]);
-			treeValues.add(part);
+			//treeValues.add(part);
 		}
 	}
 	
@@ -66,11 +66,10 @@ int main(){
 	//cout << "Final tree  : " << treeValues << endl << endl; 					// prints the contents of the tree.
 	cout << "Time elapsed: " << (clock() - t)/1000.0 << " seconds" << endl; // prints elapsed time.
 	cout << "Time per ins/del operation: " << 1000.0*(double)(clock() - t)/(double)(100000*21) << " milliseconds." << endl;
-	//cout << "There are " << treeValues.calculateParts() << " types of parts and " << treeValues.calculateInventory() << " parts in total." << endl << endl;
-	
+	cout << "There are " << treeValues.calculateParts() << " types of parts and " << treeValues.calculateInventory() << " parts in total." << endl << endl;
 	
 	// ----------------------------------------------------------------------------------------------------------------------
-	/*
+	
 	cout << "==================" << endl << "HASH TABLE" << endl << "==================" << endl << endl;
 	t = clock(); // gets current time
     cout << "Initial hash table: " << tableValues << endl; // overloaded << operator
@@ -90,11 +89,11 @@ int main(){
 	}
 	
 	cout << endl << endl;
-	cout << "Final hash table  : " << tableValues << endl << endl; 			// prints the contents of the hash table.
+	//cout << "Final hash table  : " << tableValues << endl << endl; 			// prints the contents of the hash table.
     cout << "Time elapsed: " << (clock() - t)/1000.0 << " seconds" << endl; // prints elapsed time.
 	cout << "Time per ins/del operation: " << 1000.0*(double)(clock() - t)/(double)(100000*21) << " milliseconds." << endl << endl;
 	cout << "There are " << tableValues.calculateParts() << " types of parts and " << tableValues.calculateInventory() << " parts in total." << endl << endl;
-	*/
+	
 	cout << "The program has finished." << endl;
 	return 0;
 }

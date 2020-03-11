@@ -26,8 +26,9 @@ template <typename value_type>
 void BSTree<value_type>::add(value_type& value){
 	if(root==NULL){
 		root = new BTNode<value_type>(value);
+		numberOfNodes++;
 	}else{
-		//addRecursive(root, value);
+		addRecursive(root, value);
 	}
 }
 
@@ -39,48 +40,141 @@ void BSTree<value_type>::addRecursive(BTNode<value_type>* node, value_type& valu
 	}else if(value < node->getData()){							// if the input value is less than the pointed data...
 		if(node->getLeft() == NULL){							// and if the left of the node has no value...
 			node->setLeft(new BTNode<value_type>(value));		// make a new node to the left with value as the data
-			//node->getLeft()->setParent(node);					// set the parent of the new n ode you made as the parent
+			numberOfNodes++;
 		}else{													// otherwise...
 			addRecursive(node->getLeft(), value);				// deep further in the left of the mini tree
 		}
 	}else{														// otherwise...
 		if(node->getRight() == NULL){							// if the right of the node has no value...
 			node->setRight(new BTNode<value_type>(value));		// make a new node to the right with value as the data
-			//node->getRight()->setParent(node);					// set the parent of the new node you made as the parent
+			numberOfNodes++;
 		}else{													// otherwise...
 			addRecursive(node->getRight(), value);				// deep further in the right of the mini tree
 		}
 	}
 }
 
-
-
+// LAUREN VERSION
 template <typename value_type>
-void BSTree<value_type>::remove(value_type value){
-	if(root == NULL){			// if the root node does not exist...
-		return;					// do nothing
+void BSTree<value_type>::remove(value_type& value){
+	if(numberOfNodes == 0){
+		return;
 	}else{
-		if(value == root->getData()){						// if the parameter value is equal to the root node of the tree...
-			BTNode<value_type> tempNode;				// create a temporary node which will become the parent node
-			tempNode.setLeft(root);							// the temporary node has now become the root
-			// missing code i dont understand
-			return;
-		}else{												// if the node we want to delete is not the root node...
-			// BTNode<value_type>* ptrNode = root->remove();
-			return;
-		}
+		removeRecursive(root, parent, value);
 	}
 }
 
-
 template <typename value_type>
-void BSTree<value_type>::calculateParts(){
-	std::cout << "testing calculateParts() function";
+void BSTree<value_type>::removeRecursive(BTNode<value_type>* node, BTNode<value_type>* parent, value_type& value){
+	if(node == NULL){		// first guard as root
+		return;				// indicates node was not found/removed
+	}
+	
+	// CASE 1: Leaf
+	if(node->isLeaf()){
+		if(node->getData() == root->getData()){						// if the node matches root
+			root = NULL;
+		}else{								// otherwise treat it as a normal case
+			if(node->isRightChild()){
+				node->getParent()->setRight(NULL);
+			}else{
+				node->getParent()->setLeft(NULL);
+			}
+		}
+		delete node;
+		numberOfNodes--;
+	// CASE 2: One Child
+	}else if(node->hasOneChild()){
+		if(node->getData() == root->getData()){						// if the node matches root
+			node->getRight()->setParent(NULL);
+			root = node->getRight();
+		}else{
+			node->getLeft()->setParent(NULL);
+			root = node->getLeft();
+		}
+
+		if(node->getRight() != NULL){						// if removing right child...
+			node->getRight()->setParent(node->getParent());
+			if(node->isRightChild()){
+				node->getParent()->setRight(node->getRight());
+			}else{
+				node->getParent()->setLeft(node->getLeft());
+			}
+		}else{													// if removing left child...
+			node->getLeft()->setParent(node->getParent());
+			if(node->isRightChild()){
+				node->getParent()->setRight(node->getLeft());
+			}else{
+				node->getParent()->setLeft(node->getLeft());
+			}
+		}
+
+		delete node;
+		numberOfNodes--;
+	// CASE 3: Two Children
+	}else{
+		BTNode<value_type>* tempNode = findMin(node->getRight());
+		//BTNode<value_type>* tempItem = new BTNode<value_type>(tempNode->getData());		// this might be wrong
+		removeRecursive(node->getRight(), tempNode->getData());
+		//node->setData(*tempItem);									// this might be wrong
+	}
+}
+
+template <typename value_type>		// helps find the lowest value node in the Bsubtree
+BTNode<value_type>* BSTree<value_type>::findMin(BTNode<value_type>* node){
+	if(node->getLeft() != NULL){
+		findMin(node->getLeft());
+	}else{
+		return node;
+	}
 }
 
 template <typename value_type>
-void BSTree<value_type>::calculateInventory(){
-	std::cout << "tetsing calculateInventory() function" << std::endl;
+int BSTree<value_type>::calculateParts(){
+	if(root == NULL){				// if the root node has nothing in it then you have 0 values
+		answer = 0;					// return the value of 0 since there arent any nodes
+		return answer;
+	}else{
+		int answer = 0;
+		answer +=	 calculatePartsRecursive(root);		// run through the recursive function
+		return answer;
+	}
+}
+
+template <typename value_type>
+int BSTree<value_type>::calculatePartsRecursive(BTNode<value_type>* node){
+	int tempAnswer;
+	if(node != NULL){
+		tempAnswer = answer + calculatePartsRecursive(node->getLeft());
+		tempAnswer = answer + calculatePartsRecursive(node->getRight());
+	}
+	answer += tempAnswer;
+	return answer;
+}
+
+template <typename value_type>
+int BSTree<value_type>::calculateInventory(){
+	if(root == NULL){				// if the root node has nothing in it then you have 0 values
+		answer = 0;					// return the value of 0 since there arent any nodes
+		return answer;
+	}else{
+		int answer = 0;
+		answer += calculateInventoryRecursive(root);		// run through the recursive function
+		return answer;
+	}
+}
+
+template <typename value_type>
+int BSTree<value_type>::calculateInventoryRecursive(BTNode<value_type>* node){
+	int tempAnswer;
+	if(node != NULL){
+		//tempAnswer = node->getLeft();
+		calculateInventoryRecursive(node->getLeft());
+		//tempAnswer = node->getRight();
+		tempAnswer = answer + calculateInventoryRecursive(node->getRight());
+	}
+	answer += tempAnswer;
+	return answer;
 }
 
 template <typename value_type>
